@@ -5,7 +5,7 @@ variable "s3" {
     force_destroy       = bool
     object_lock_enabled = bool
     acl                 = string
-    object_ownership    = string
+    object_ownership    = optional(string, "BucketOwnerPreferred")
   })
 
   default = {
@@ -13,7 +13,7 @@ variable "s3" {
     force_destroy       = false
     acl                 = "private"
     object_lock_enabled = false
-    object_ownership    = optional(string, "BucketOwnerPreferred")
+    object_ownership    = "BucketOwnerPreferred"
   }
 
   description = <<-EOT
