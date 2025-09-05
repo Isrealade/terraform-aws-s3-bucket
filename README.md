@@ -57,7 +57,7 @@ This module follows AWS best practices for S3 bucket provisioning while allowing
 
 ```hcl
 module "s3_bucket" {
-  source = "./modules/terraform-aws-s3"
+  source = "Isrealade/s3-bucket/aws"
 
   s3 = {
     bucket              = "my-unique-bucket-name"
@@ -77,7 +77,7 @@ module "s3_bucket" {
 
 ```hcl
 module "s3_bucket" {
-  source = "./modules/terraform-aws-s3"
+  source = "Isrealade/s3-bucket/aws"
 
   s3 = {
     bucket              = "my-website-bucket"
@@ -103,7 +103,7 @@ module "s3_bucket" {
 
 ```hcl
 module "s3_bucket" {
-  source = "./modules/terraform-aws-s3"
+  source = "Isrealade/s3-bucket/aws"
 
   s3 = {
     bucket              = "secure-bucket"

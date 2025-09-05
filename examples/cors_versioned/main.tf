@@ -29,12 +29,6 @@ module "s3" {
     create_kms_key = false
   }
 
-  website = {
-    enabled                  = false
-    index_document           = null
-    error_document           = null
-    redirect_all_requests_to = null
-  }
 
   tags = {
     Environment = "dev"
