@@ -123,7 +123,142 @@ module "s3_bucket" {
   }
 }
 ```
+### With cors versioned
 
+```hcl
+module "s3" {
+  source = "Isrealade/s3-bucket/aws"
+
+  s3 = {
+    bucket              = "my-example-bucket-cors-12345"
+    force_destroy       = true
+    object_lock_enabled = false
+    acl                 = "private"
+  }
+
+  versioning = {
+    enabled    = true
+    mfa_delete = false
+  }
+
+  cors_rules = [
+    {
+      allowed_headers = ["*"]
+      allowed_methods = ["GET", "POST"]
+      allowed_origins = ["https://example.com"]
+      expose_headers  = ["ETag"]
+      max_age_seconds = 3600
+    }
+  ]
+
+  encryption = {
+    enabled        = true
+    sse_algorithm  = "AES256"
+    create_kms_key = false
+  }
+
+
+  tags = {
+    Environment = "dev"
+    Project     = "cors-example"
+  }
+}
+
+```
+### With versioning only
+
+```hcl
+module "s3_bucket_versioning" {
+  source = "Isrealade/s3-bucket/aws"
+
+  s3 = {
+    bucket              = "my-versioned-bucket"
+    force_destroy       = false
+    object_lock_enabled = false
+    acl                 = "private"
+    object_ownership    = "BucketOwnerPreferred"
+  }
+
+  versioning = {
+    enabled    = true
+    mfa_delete = false
+  }
+
+  # Object lock, encryption, CORS, and website are not enabled
+  object_lock_configuration = null
+  cors_rules                = []
+  encryption                = {
+    enabled        = false
+    sse_algorithm  = "AES256"
+  }
+  website = {
+    enabled = false
+  }
+
+  tags = {
+    Environment = "dev"
+    Project     = "versioning-only"
+  }
+}
+```
+### all features
+
+```hcl
+module "s3_bucket" {
+  source = "Isrealade/s3-bucket/aws"
+
+  s3 = {
+    bucket              = "my-full-feature-bucket"
+    bucket_prefix       = null
+    force_destroy       = true
+    object_lock_enabled = true
+    acl                 = "private"
+    object_ownership    = "BucketOwnerPreferred"
+  }
+
+  versioning = {
+    enabled    = true
+    mfa_delete = false
+  }
+
+  object_lock_configuration = {
+    mode  = "COMPLIANCE"
+    days  = 30
+    years = null
+  }
+
+  cors_rules = [
+    {
+      allowed_headers = ["*"]
+      allowed_methods = ["GET", "PUT"]
+      allowed_origins = ["https://example.com"]
+      expose_headers  = ["x-amz-server-side-encryption"]
+      max_age_seconds = 3600
+    }
+  ]
+
+  encryption = {
+    enabled        = true
+    sse_algorithm  = "aws:kms"
+    create_kms_key = true
+    key_rotation   = true
+    deletion_window = 7
+  }
+
+  website = {
+    enabled                  = true
+    index_document           = "index.html"
+    error_document           = "error.html"
+    redirect_all_requests_to = null
+    routing_rules            = null
+  }
+
+  tags = {
+    Environment = "dev"
+    Project     = "full-feature-s3"
+  }
+}
+```
 ---
 
 ## 🔧 Inputs

@@ -93,6 +93,23 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "main" {
   }
 }
 
+resource "aws_s3_bucket_policy" "main" {
+  bucket = aws_s3_bucket.main.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AllowPublicRead"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.main.arn}/*"
+      }
+    ]
+  })
+}
+
 resource "aws_s3_bucket_website_configuration" "main" {
   count  = var.website.enabled ? 1 : 0
   bucket = aws_s3_bucket.main.id
