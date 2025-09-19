@@ -186,3 +186,9 @@ variable "tags" {
   (e.g. { "Environment" = "dev", "Project" = "my-app" }).
   EOT
 }
+
+variable "bucket_policy" {
+  type        = string
+  default     = null
+  description = "Optional JSON policy string to attach to the bucket. When null, a safe public-read website policy is used if website hosting is enabled with public-read ACL."
+}

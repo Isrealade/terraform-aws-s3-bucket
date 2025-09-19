@@ -142,6 +142,7 @@ Replace `<example_name>` with one of:
 * This module only supports **`private`** and **`public-read`** ACLs.
 * Bucket **object ownership** is fixed to `BucketOwnerPreferred`.
 * For production static websites, consider using **CloudFront with Origin Access Control (OAC)** instead of direct `public-read` buckets.
+* You can override the default website policy by supplying the `bucket_policy` input as a JSON string. If omitted and you enable website hosting with `public-read` ACL, the module applies a default policy that allows `s3:GetObject` on all objects.
 
 ---
 

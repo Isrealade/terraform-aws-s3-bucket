@@ -94,21 +94,24 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "main" {
 }
 
 resource "aws_s3_bucket_policy" "main" {
-  count  = var.website.enabled && var.s3.acl == "public-read" ? 1 : 0
+  count  = (var.bucket_policy != null) || (var.website.enabled && var.s3.acl == "public-read") ? 1 : 0
   bucket = aws_s3_bucket.main.id
 
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid       = "AllowPublicRead"
-        Effect    = "Allow"
-        Principal = "*"
-        Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.main.arn}/*"
-      }
-    ]
-  })
+  policy = coalesce(
+    var.bucket_policy,
+    jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Sid       = "AllowPublicRead"
+          Effect    = "Allow"
+          Principal = "*"
+          Action    = "s3:GetObject"
+          Resource  = "${aws_s3_bucket.main.arn}/*"
+        }
+      ]
+    })
+  )
 }
 
 

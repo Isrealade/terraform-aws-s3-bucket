@@ -31,6 +31,7 @@ This module follows AWS best practices for S3 bucket provisioning while allowing
   * Redirect all requests to another domain
   * Routing rules (JSON string)
 * **Tagging** support for resources
+* Optional custom **bucket policy** via input variable
 
 ---
 
@@ -95,6 +96,46 @@ module "s3_bucket" {
   tags = {
     Environment = "prod"
     Project     = "static-site"
+  }
+}
+```
+
+### With Custom Bucket Policy
+
+```hcl
+module "s3_bucket" {
+  source = "Isrealade/s3-bucket/aws"
+
+  s3 = {
+    bucket              = "my-site-bucket"
+    force_destroy       = false
+    object_lock_enabled = false
+    acl                 = "public-read"
+  }
+
+  website = {
+    enabled        = true
+    index_document = "index.html"
+  }
+
+  # Provide a custom policy (JSON string). If omitted, a default
+  # public-read website policy is applied when website is enabled
+  # and ACL is public-read.
+  bucket_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid       = "AllowPublicRead"
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = ["s3:GetObject"]
+        Resource  = ["${module.s3_bucket.bucket_arn}/*"]
+      }
+    ]
+  })
+
+  tags = {
+    Environment = "prod"
   }
 }
 ```
@@ -271,6 +312,7 @@ module "s3_bucket" {
 | `cors_rules`                | list(object) | `[]`                                                                                                                               | List of CORS rules.                                                                                        |
 | `encryption`                | object       | `{ enabled = true, sse_algorithm = "AES256", kms_master_key_id = null, create_kms_key = false }`                                   | Server-side encryption config. Supports `AES256` and `aws:kms`.                                            |
 | `website`                   | object       | `{ enabled = false, index_document = "index.html", error_document = null, redirect_all_requests_to = null, routing_rules = null }` | Website hosting config.                                                                                    |
+| `bucket_policy`             | string       | `null`                                                                                                                             | Optional JSON policy string. When null, a default public-read website policy is used if website is enabled with ACL `public-read`. |
 | `tags`                      | map(string)  | `{}`                                                                                                                               | Tags to apply to all resources.                                                                            |
 
 ---
@@ -302,4 +344,5 @@ module "s3_bucket" {
 
 * Ensure your bucket names are **globally unique**.
 * If using `website.enabled = true`, remember that **content upload** is not handled by this module. Use `aws s3 sync` or a CI/CD pipeline for uploads.
+* When `website.enabled = true` and ACL is `public-read`, the module will attach a default policy that allows `s3:GetObject` on all objects in the bucket unless you provide a custom `bucket_policy`.
 * Object lock requires enabling `object_lock_enabled` **at bucket creation**; it cannot be changed later.
